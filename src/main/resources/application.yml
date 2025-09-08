@@ -1,0 +1,9 @@
+gateway:
+  server:
+    main:
+      uri: "http://localhost:8078"
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+
+server:
+  port: 8080
