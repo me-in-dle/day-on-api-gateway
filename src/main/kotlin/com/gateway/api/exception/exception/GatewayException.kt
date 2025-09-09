@@ -2,17 +2,9 @@ package com.gateway.api.exception.exception
 
 class GatewayException(
     private val code: GatewayExceptionCode,
-) : RuntimeException() {
+) : RuntimeException(code.message) {
 
-    override val cause: Throwable
-        get() = Throwable(code.errorCode)
-
-    override val message: String
-        get() = code.message
-
-    val status: Int
-        get() = code.status
-
-    val errorCode: String
-        get() = code.errorCode
+    override val cause: Throwable = Throwable(code.errorCode)
+    val status: Int = code.status
+    val errorCode: String = code.errorCode
 }

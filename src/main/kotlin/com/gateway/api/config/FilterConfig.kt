@@ -16,7 +16,7 @@ class FilterConfig(
     private val authorizationConfig: AuthorizationConfig,
 ) {
     @Value("\${gateway.server.main.uri}")
-    lateinit var userServerUri: String
+    lateinit var mainServerUri: String
 
     @Bean
     fun blockInternalRequestFilter(): GatewayFilter {
@@ -45,7 +45,7 @@ class FilterConfig(
             .route("general") { route ->
                 route.path("/api/**")
                     .filters { spec -> spec.filter(authorizationHeaderFilter.apply(authorizationConfig)) }
-                    .uri(userServerUri)
+                    .uri(mainServerUri)
 
             }
             .build()
