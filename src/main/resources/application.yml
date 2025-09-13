@@ -13,3 +13,16 @@ spring:
     redis:
       host: localhost
       port: 6379
+
+
+  cloud:
+    gateway:
+      httpserver:
+        wiretap: true
+      httpclient:
+        wiretap: true
+
+logging:
+  level:
+    reactor:
+      netty: DEBUG
