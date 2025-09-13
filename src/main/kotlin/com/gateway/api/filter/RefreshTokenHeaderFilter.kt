@@ -1,12 +1,12 @@
 package com.gateway.api.filter
 
 import com.fasterxml.jackson.core.JsonProcessingException
-import com.gateway.api.config.AuthorizationConfig
 import com.gateway.api.exception.exception.GatewayException
 import com.gateway.api.exception.exception.GatewayExceptionCode
-import com.gateway.api.util.HeaderType
-import com.gateway.api.util.Logger
-import com.gateway.api.util.TokenParser
+import com.gateway.config.AuthorizationConfig
+import com.gateway.utils.HeaderType
+import com.gateway.utils.Logger
+import com.gateway.utils.TokenParser
 import org.springframework.cloud.gateway.filter.GatewayFilter
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory
 import org.springframework.stereotype.Component

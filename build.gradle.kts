@@ -21,6 +21,8 @@ repositories {
 extra["springCloudVersion"] = "2023.0.3"
 
 dependencies {
+    val gsonVersion: String by project
+
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
@@ -39,6 +41,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.security:spring-security-test")
+
+    implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 }
 
 dependencyManagement {

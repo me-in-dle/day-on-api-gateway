@@ -1,6 +1,6 @@
-package com.gateway.api.config
+package com.gateway.config
 
-import com.gateway.api.util.HeaderType
+import com.gateway.utils.HeaderType
 import org.springframework.http.server.reactive.ServerHttpRequest
 
 interface AuthorizationConfig {

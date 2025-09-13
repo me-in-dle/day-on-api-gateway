@@ -1,4 +1,4 @@
-package com.gateway.api.util
+package com.gateway.utils
 
 import org.slf4j.LoggerFactory
 

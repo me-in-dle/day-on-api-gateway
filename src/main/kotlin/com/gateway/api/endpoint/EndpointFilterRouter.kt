@@ -1,8 +1,10 @@
-package com.gateway.api.config
+package com.gateway.api.endpoint
 
 import com.gateway.api.filter.AuthorizationHeaderFilter
 import com.gateway.api.filter.RefreshTokenHeaderFilter
-import com.gateway.api.util.Logger
+import com.gateway.api.filter.WebSocketAuthorizationHeaderFilter
+import com.gateway.config.AuthorizationConfig
+import com.gateway.utils.Logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cloud.gateway.filter.GatewayFilter
 import org.springframework.cloud.gateway.route.RouteLocator
@@ -12,7 +14,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 
 @Configuration
-class FilterConfig(
+class EndpointFilterRouter(
     private val authorizationConfig: AuthorizationConfig,
 ) {
     @Value("\${gateway.server.main.uri}")
@@ -32,6 +34,7 @@ class FilterConfig(
         builder: RouteLocatorBuilder,
         authorizationHeaderFilter: AuthorizationHeaderFilter,
         refreshTokenHeaderFilter: RefreshTokenHeaderFilter,
+        webSocketAuthorizationHeaderFilter: WebSocketAuthorizationHeaderFilter,
     ): RouteLocator {
 
         return builder.routes()
@@ -41,6 +44,15 @@ class FilterConfig(
                 )
                     .filters { spec -> spec.filter(blockInternalRequestFilter()) }
                     .uri("forward:/invalid")
+            }
+            .route("websocket-connect-route") { route ->
+                route.path("/ws-connect/**")
+                    .filters { spec -> spec.filter(webSocketAuthorizationHeaderFilter.apply(authorizationConfig)) }
+                    .uri(mainServerUri)
+            }
+            .route("websocket-route") { route ->
+                route.path("/ws/**")
+                    .uri("ws://localhost:8078")
             }
             .route("general") { route ->
                 route.path("/api/**")

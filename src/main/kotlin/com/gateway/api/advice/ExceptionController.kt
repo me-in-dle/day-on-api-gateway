@@ -2,7 +2,7 @@ package com.gateway.api.advice
 
 import com.gateway.api.exception.exception.GatewayException
 import com.gateway.api.exception.exception.GatewayExceptionCode
-import com.gateway.api.util.Logger
+import com.gateway.utils.Logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler

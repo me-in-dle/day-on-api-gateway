@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.gateway.api.advice.ExceptionResponse
 import com.gateway.api.exception.exception.GatewayException
 import com.gateway.api.exception.exception.GatewayExceptionCode
-import com.gateway.api.util.Logger
+import com.gateway.utils.Logger
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange

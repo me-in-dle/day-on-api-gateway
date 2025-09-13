@@ -1,8 +1,7 @@
-package com.gateway.api.util
+package com.gateway.utils
 
 import com.gateway.api.exception.exception.GatewayException
 import com.gateway.api.exception.exception.GatewayExceptionCode
-import org.slf4j.LoggerFactory
 import org.springframework.http.server.reactive.ServerHttpRequest
 
 object HeaderProcessor {

@@ -1,4 +1,4 @@
-package com.gateway.api.util
+package com.gateway.utils
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.gateway.api.exception.exception.GatewayException
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.security.Key
-import java.util.*
 
 @Component
 class TokenParser : InitializingBean {
@@ -44,7 +43,11 @@ class TokenParser : InitializingBean {
             when(headerType) {
                 HeaderType.AUTHORIZATION_HEADER -> throw GatewayException(GatewayExceptionCode.ACCESSTOKEN_EXPIRED)
                 HeaderType.REFRESHTOKEN_HEADER -> throw GatewayException(GatewayExceptionCode.REFRESHTOKEN_EXPIRED)
+                HeaderType.SEC_WEBSOCKET_PROTOCOL -> throw GatewayException(GatewayExceptionCode.ACCESSTOKEN_EXPIRED)
             }
+        } catch (e: Exception) {
+            log.error("Token parsing error: ${e.message}")
+            throw GatewayException(GatewayExceptionCode.BAD_REQUEST)
         }
     }
 

@@ -4,42 +4,43 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.gateway.api.exception.exception.GatewayException
 import com.gateway.api.exception.exception.GatewayExceptionCode
 import com.gateway.config.AuthorizationConfig
-import com.gateway.utils.HeaderType
+import com.gateway.domain.port.CachePort
 import com.gateway.utils.Logger
-import com.gateway.utils.TokenParser
 import org.springframework.cloud.gateway.filter.GatewayFilter
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator
 import org.springframework.stereotype.Component
-import org.springframework.util.AntPathMatcher
 
 @Component
-class AuthorizationHeaderFilter(
-    private val antPathMatcher: AntPathMatcher,
-    private val tokenParser: TokenParser,
+class WebSocketAuthorizationHeaderFilter(
+    private val cachePort: CachePort,
     private val errorFilter: ErrorFilter,
 ) : AbstractGatewayFilterFactory<AuthorizationConfig>() {
 
     companion object : Logger() {
-        private val WHITE_LIST = arrayOf(
-            "/",
-            "/static/**",
-            "/favicon.ico",
-            "/account/login/**",
-            "/account/logout/**",
-        )
+        private const val WS_TICKET_HEADER = "WS-TICKET"
+        private const val CACHE_PREFIX = "ws:ticket"
     }
 
     override fun apply(config: AuthorizationConfig): GatewayFilter = GatewayFilter { exchange, chain ->
         val request = exchange.request
         log.info("header request = ${request.uri}")
+        val isWebSocket = request.headers.getFirst("Upgrade")?.lowercase() == "websocket"
 
-        if (isWhiteList(request.uri.path)) return@GatewayFilter chain.filter(exchange)
+        if (!isWebSocket) throw GatewayException(GatewayExceptionCode.BAD_REQUEST)
 
         try {
-            val accessToken = config.validateAuthorizationHeaderAndGetAccessToken(request)
-            val accountId = tokenParser.parseUserIdFromToken(accessToken, HeaderType.AUTHORIZATION_HEADER)
+            val ticket = request.cookies.getFirst(WS_TICKET_HEADER)?.value
+                ?: return@GatewayFilter errorFilter.onError(
+                    exchange,
+                    GatewayException(GatewayExceptionCode.BAD_REQUEST)
+                )
+
+            val accountId = cachePort.get("$CACHE_PREFIX:$ticket", String::class.java) ?: return@GatewayFilter errorFilter.onError(
+                exchange,
+                GatewayException(GatewayExceptionCode.BAD_REQUEST)
+            )
 
             val decorated = object : ServerHttpRequestDecorator(exchange.request) {
                 override fun getHeaders(): HttpHeaders {
@@ -50,6 +51,7 @@ class AuthorizationHeaderFilter(
                 }
             }
 
+            log.info("WebSocket connection authorized for accountId: $accountId")
             return@GatewayFilter chain.filter(exchange.mutate().request(decorated).build())
 
         } catch (e: JsonProcessingException) {
@@ -57,12 +59,8 @@ class AuthorizationHeaderFilter(
         } catch (e: GatewayException) {
             return@GatewayFilter errorFilter.onError(exchange, e)
         } catch (e: Exception) {
-            log.error("Unexpected error during authorization: ${e.message}")
+            log.error("Unexpected error during WebSocket authorization: ${e.message}")
             return@GatewayFilter errorFilter.onError(exchange, GatewayException(GatewayExceptionCode.BAD_REQUEST))
         }
-    }
-
-    private fun isWhiteList(requestURI: String): Boolean {
-        return WHITE_LIST.any { antPathMatcher.match(it, requestURI) }
     }
 }

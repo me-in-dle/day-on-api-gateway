@@ -1,9 +1,9 @@
-package com.gateway.api.config
+package com.gateway.config
 
-import com.gateway.api.util.HeaderProcessor
-import com.gateway.api.util.HeaderType
-import com.gateway.api.util.Logger
-import com.gateway.api.util.TokenParser
+import com.gateway.utils.HeaderProcessor
+import com.gateway.utils.HeaderType
+import com.gateway.utils.Logger
+import com.gateway.utils.TokenParser
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.stereotype.Component
 
