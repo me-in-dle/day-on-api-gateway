@@ -54,6 +54,10 @@ class EndpointFilterRouter(
                 route.path("/ws/**")
                     .uri("ws://localhost:8078")
             }
+            .route("general-register") { route ->
+                route.path("/api/v1/account/social/**")
+                    .uri(mainServerUri)
+            }
             .route("general") { route ->
                 route.path("/api/**")
                     .filters { spec -> spec.filter(authorizationHeaderFilter.apply(authorizationConfig)) }
