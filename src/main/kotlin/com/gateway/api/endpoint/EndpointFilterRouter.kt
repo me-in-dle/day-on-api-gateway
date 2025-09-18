@@ -15,7 +15,7 @@ import org.springframework.http.HttpStatus
 
 @Configuration
 class EndpointFilterRouter(
-    private val authorizationConfig: AuthorizationConfig,
+        private val authorizationConfig: AuthorizationConfig,
 ) {
     @Value("\${gateway.server.main.uri}")
     lateinit var mainServerUri: String
@@ -31,40 +31,44 @@ class EndpointFilterRouter(
 
     @Bean
     fun setRoutes(
-        builder: RouteLocatorBuilder,
-        authorizationHeaderFilter: AuthorizationHeaderFilter,
-        refreshTokenHeaderFilter: RefreshTokenHeaderFilter,
-        webSocketAuthorizationHeaderFilter: WebSocketAuthorizationHeaderFilter,
+            builder: RouteLocatorBuilder,
+            authorizationHeaderFilter: AuthorizationHeaderFilter,
+            refreshTokenHeaderFilter: RefreshTokenHeaderFilter,
+            webSocketAuthorizationHeaderFilter: WebSocketAuthorizationHeaderFilter,
     ): RouteLocator {
 
         return builder.routes()
-            .route("block-internal") { route ->
-                route.path(
-                    "/api/internal/**",
-                )
-                    .filters { spec -> spec.filter(blockInternalRequestFilter()) }
-                    .uri("forward:/invalid")
-            }
-            .route("websocket-connect-route") { route ->
-                route.path("/ws-connect/**")
-                    .filters { spec -> spec.filter(webSocketAuthorizationHeaderFilter.apply(authorizationConfig)) }
-                    .uri(mainServerUri)
-            }
-            .route("websocket-route") { route ->
-                route.path("/ws/**")
-                    .uri("ws://localhost:8078")
-            }
-            .route("general-register") { route ->
-                route.path("/api/v1/account/social/**")
-                    .uri(mainServerUri)
-            }
-            .route("general") { route ->
-                route.path("/api/**")
-                    .filters { spec -> spec.filter(authorizationHeaderFilter.apply(authorizationConfig)) }
-                    .uri(mainServerUri)
+                .route("block-internal") { route ->
+                    route.path(
+                            "/api/internal/**",
+                    )
+                            .filters { spec -> spec.filter(blockInternalRequestFilter()) }
+                            .uri("forward:/invalid")
+                }
+                .route("websocket-connect-route") { route ->
+                    route.path("/ws-connect/**")
+                            .filters { spec -> spec.filter(webSocketAuthorizationHeaderFilter.apply(authorizationConfig)) }
+                            .uri(mainServerUri)
+                }
+                .route("websocket-route") { route ->
+                    route.path("/ws/**")
+                            .uri("ws://localhost:8078")
+                }
+                .route("general-register") { route ->
+                    route.path("/api/v1/account/social/**")
+                            .uri(mainServerUri)
+                }
+                .route("calendar-callback") { route ->
+                    route.path("/api/v1/calendar/oauth/callback/**")
+                            .uri(mainServerUri)
+                }
+                .route("general") { route ->
+                    route.path("/api/**")
+                            .filters { spec -> spec.filter(authorizationHeaderFilter.apply(authorizationConfig)) }
+                            .uri(mainServerUri)
 
-            }
-            .build()
+                }
+                .build()
     }
 
     companion object : Logger()
